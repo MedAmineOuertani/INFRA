@@ -405,25 +405,6 @@ variable "name" {
   description = "Name for the bucket. If omitted, Terraform will assign a random, unique name."
 }
 
-# Create an IAM policy document allowing the OAI to access the S3 bucket
-data "aws_iam_policy_document" "my_oai" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.example.iam_arn]
-    }
-
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      aws_s3_bucket.example.arn,
-      "${aws_s3_bucket.example.arn}/*",
-    ]
-  }
-}
 
 variable "policy" {
   type        = string
