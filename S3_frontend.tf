@@ -14,12 +14,12 @@ resource "aws_s3_bucket" "default" {
   #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled"
 
 
-  # depends_on = [aws_s3_bucket.replication]
-  tags = merge(var.tags, {
+ // # depends_on = [aws_s3_bucket.replication]
+  /*tags = merge(var.tags, {
     git_commit = "818fcfce9e8f7171e2009dd1c00d08fda22163ea"
     git_repo   = "CLD/public/terraform/aws/terraform-aws-s3-bucket"
     yor_trace  = "c1004fb5-d30d-4591-a6fb-35ee84842f74"
-  })
+  })*/
   bucket              = var.name
   force_destroy       = var.force_destroy
   object_lock_enabled = var.object_lock_enabled
@@ -263,27 +263,26 @@ data "aws_iam_policy_document" "bucket_policy" {
   # --------------------------------------------------------------------------
 
   statement {
+    sid     = "ForceSSLOnlyAccess"
+    effect  = "Allow"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.default.arn,
+      "${aws_s3_bucket.default.arn}/*",
+
+    ]
+
     principals {
+      identifiers = ["*"]
       type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.my_oai.iam_arn]
     }
 
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      aws_s3_bucket.example.arn,
-      "${aws_s3_bucket.example.arn}/*",
-    ]
+    condition {
+      test     = "NumericLessThan"
+      values   = [1.2]
+      variable = "s3:TLSVersion"
+    }
   }
-  }
-
-resource "aws_s3_bucket_policy" "default" {
-  bucket = aws_s3_bucket.default.id
-  policy = data.aws_iam_policy_document.bucket_policy.json
-}
 
 
   # --------------------------------------------------------------------------
@@ -365,7 +364,10 @@ data "aws_iam_policy_document" "merged_policy" {
 }
 
 ## Set policy on bucket if needed (policy given by user or by choosed options)
-
+resource "aws_s3_bucket_policy" "default" {
+  bucket = aws_s3_bucket.default.id
+  policy = data.aws_iam_policy_document.merged_policy.json
+}
 
 # Refer to the terraform documentation on s3_bucket_public_access_block at
 # https://www.terraform.io/docs/providers/aws/r/s3_bucket_public_access_block.html

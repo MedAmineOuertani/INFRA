@@ -4,12 +4,12 @@
 variable "aws_region" {
   description = "The AWS region to deploy resources in"
   type        = string
-  default     = "us-west-1"
+  default     = "eu-west-3"
 }
 
 
 
-###################################################################################################################
+/*###################################################################################################################
 ### Route53  Variables ############################################################################################
 ###################################################################################################################
 variable "domain_name" {
@@ -82,7 +82,7 @@ variable "wait_for_deployment" {
   default     = true
 }
 
-variable "web_acl_id" {############## Must be updated when adding the WAF ###########################################
+variable "web_acl_id" {
   description = "If you're using AWS WAF to filter CloudFront requests, the Id of the AWS WAF web ACL that is associated with the distribution. The WAF Web ACL must exist in the WAF Global (CloudFront) region and the credentials configuring this argument must have waf:GetWebACL permissions assigned. If using WAFv2, provide the ARN of the web ACL."
   type        = string
   default     = null
@@ -172,21 +172,7 @@ variable "origin_group" {
       origin_id = string
     })
   }))
-  default = [{
-    origin_id = "groupS3"
-
-    failover_criteria = {
-      status_codes = [403, 404, 500, 502]
-    }
-
-    primary_member = {
-      origin_id = aws_s3_bucket.default.id
-    }
-    secondary_member = {
-      origin_id = aws_s3_bucket.default.id
-    }
-
-  }]
+  default = []
 }
 
 
@@ -199,9 +185,6 @@ variable "viewer_certificate" {
     minimum_protocol_version       = optional(string)
     ssl_support_method             = optional(string)
   })
-  default = {
-    cloudfront_default_certificate = true
-  }
 }
 
 variable "geo_restriction" {
@@ -210,10 +193,6 @@ variable "geo_restriction" {
     restriction_type = string
     locations        = list(string)
   })
-  default = {
-    restriction_type = "blacklist"
-    locations        = ["RU"]
-  }
 }
 
 variable "logging_config" {
@@ -223,7 +202,6 @@ variable "logging_config" {
     prefix          = string
     include_cookies = optional(bool)
   })
-  default = null
 }
 
 variable "custom_error_response" {
@@ -286,18 +264,6 @@ a description in var.lambda_function_association variable earlier in this file. 
 of the vars in this file apply only to the default cache. Put value `""` on field `target_origin_id` to specify default s3 bucket origin.
 See : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution#default-cache-behavior-arguments
 DESCRIPTION
-
-  default = {
-    allowed_methods  = ["GET", "HEAD", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = aws_s3_bucket.default.id
-
-    viewer_protocol_policy     = "redirect-to-https"
-    min_ttl                    = 0
-    default_ttl                = 3600
-    max_ttl                    = 86400
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.this.id
-  }
 }
 
 variable "ordered_cache_behavior" {
@@ -361,7 +327,7 @@ variable "realtime_metrics_subscription_status" {
   type        = string
   default     = "Enabled"
 }
-
+*/
 ###################################################################################################################
 ### S3_frontend variables #########################################################################################
 ###################################################################################################################
@@ -369,7 +335,7 @@ variable "realtime_metrics_subscription_status" {
 ##############################################################################
 # Tags
 ##############################################################################
-variable "tags" {
+/*variable "tags" {
   type = object({
     application_code    = string
     account_category    = string
@@ -394,8 +360,7 @@ variable "tags" {
     condition     = contains(["c0", "c1", "c2", "c3"], var.tags.data_classification)
     error_message = "Valid values:  `c0`, `c1`, `c2`, `c3` (lower case)."
   }
-  default = null
-}
+}*/
 
 ##############################################################################
 # Inputs
@@ -415,7 +380,7 @@ variable "policy" {
 
 variable "force_destroy" {
   type        = bool
-  default     = false
+  default     = true
   description = "A boolean that indicates all objects (including any [locked objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock-overview.html)) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are `not̀ recoverable."
 }
 
@@ -551,7 +516,7 @@ variable "lifecycle_rules" {
   }))
   default = [{
     id      = "MandatoryLifecycle"
-    enabled = true
+    enabled = false
 
     abort_incomplete_multipart_upload_days = 1
     noncurrent_version_transition = [{
@@ -598,7 +563,7 @@ variable "kms_master_key_id" {
 
 variable "allow_encrypted_uploads_only" {
   type        = bool
-  default     = true
+  default     = false
   description = "Set to `true` to prevent uploads of unencrypted objects to S3 bucket"
 }
 
@@ -606,25 +571,25 @@ variable "allow_encrypted_uploads_only" {
 
 variable "block_public_acls" {
   type        = bool
-  default     = true
+  default     = false
   description = "Set to `false` to disable the blocking of new public access lists on the bucket"
 }
 
 variable "block_public_policy" {
   type        = bool
-  default     = true
+  default     = false
   description = "Set to `false` to disable the blocking of new public policies on the bucket"
 }
 
 variable "ignore_public_acls" {
   type        = bool
-  default     = true
+  default     = false
   description = "Set to `false` to disable the ignoring of public access lists on the bucket"
 }
 
 variable "restrict_public_buckets" {
   type        = bool
-  default     = true
+  default     = false
   description = "Set to `false` to disable the restricting of making the bucket public"
 }
 
@@ -705,7 +670,7 @@ EOF
 ######## Bucket Ownership Controls ########
 variable "object_ownership" {
   type        = string
-  default     = "BucketOwnerEnforced"
+  default     = "BucketOwnerPreferred"
   description = "Define default object ownership when object is uploaded."
 
   validation {

@@ -1,54 +1,6 @@
-resource "aws_cloudfront_origin_access_identity" "my_oai" {
+/*resource "aws_cloudfront_origin_access_identity" "my_oai" {
   comment = "My CloudFront Origin Access Identity"
 }
-resource "aws_cloudfront_response_headers_policy" "this" {
-  name    = "cloudfront-response-headers-policy"
-  comment = "A sample response headers policy"
-
-  cors_config {
-    access_control_allow_credentials = false
-    access_control_allow_headers     = ["*"]
-    access_control_allow_methods     = ["GET", "HEAD"]
-    access_control_allow_origins     = ["*"]
-    access_control_expose_headers    = ["ETag"]
-    origin_override                  = true
-  }
-
-  custom_headers_config {
-    items {
-      header   = "X-Example-Header"
-      value    = "ExampleValue"
-      override = true
-    }
-  }
-
-  security_headers_config {
-    content_security_policy {
-      content_security_policy = "default-src 'self';"
-      override                = true
-    }
-    strict_transport_security {
-      access_control_max_age_sec = 31536000
-      include_subdomains         = true
-      override                   = true
-    }
-    xss_protection {
-      mode_block = true
-      override   = true
-      protection = true
-    }
-    referrer_policy {
-      referrer_policy = "no-referrer-when-downgrade"
-      override        = true
-    }
-    frame_options {
-      frame_option = "DENY"
-      override     = true
-    }
-  }
-}
-
-
 
 resource "aws_cloudfront_distribution" "this" {
   #checkov:skip=CKV2_AWS_47: Ensure AWS CloudFront attached WAFv2 WebACL is configured with AMR for Log4j Vulnerability
@@ -306,4 +258,4 @@ resource "aws_cloudfront_monitoring_subscription" "this" {
       realtime_metrics_subscription_status = var.realtime_metrics_subscription_status
     }
   }
-}
+}*/

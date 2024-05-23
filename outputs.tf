@@ -1,8 +1,3 @@
-output "cloudfront_distribution_domain_name" {
-  description = "The domain name corresponding to the distribution."
-  value       = try(aws_cloudfront_distribution.this[0].domain_name, "")
-}
-
 /*output "cloudfront_distribution_id" {
   description = "The identifier for the distribution."
   value       = try(aws_cloudfront_distribution.this[0].id, "")
@@ -28,7 +23,10 @@ output "cloudfront_distribution_trusted_signers" {
   value       = try(aws_cloudfront_distribution.this[0].trusted_signers, "")
 }
 
-
+output "cloudfront_distribution_domain_name" {
+  description = "The domain name corresponding to the distribution."
+  value       = try(aws_cloudfront_distribution.this[0].domain_name, "")
+}
 
 output "cloudfront_distribution_last_modified_time" {
   description = "The date and time the distribution was last modified."
@@ -84,3 +82,34 @@ output "cloudfront_origin_access_controls_ids" {
   description = "The IDS of the origin access identities created"
   value       = local.create_origin_access_control ? [for v in aws_cloudfront_origin_access_control.this : v.id] : []
 }*/
+
+### S3 Outputs
+output "bucket_domain_name" {
+  value       = aws_s3_bucket.default.bucket_domain_name
+  description = "Fully Qualified Domain Name (FQDN) of bucket"
+}
+
+output "bucket_regional_domain_name" {
+  value       = aws_s3_bucket.default.bucket_regional_domain_name
+  description = "Region-specific domain name of bucket"
+}
+
+output "bucket_id" {
+  value       = aws_s3_bucket.default.id
+  description = "Bucket Name (aka ID)"
+}
+
+output "bucket_arn" {
+  value       = aws_s3_bucket.default.arn
+  description = "Bucket ARN"
+}
+
+output "bucket_name" {
+  value       = aws_s3_bucket.default.bucket
+  description = "Bucket Name"
+}
+
+output "bucket_region" {
+  value       = aws_s3_bucket.default.region
+  description = "Bucket region"
+}
