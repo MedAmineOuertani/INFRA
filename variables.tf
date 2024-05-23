@@ -394,6 +394,7 @@ variable "tags" {
     condition     = contains(["c0", "c1", "c2", "c3"], var.tags.data_classification)
     error_message = "Valid values:  `c0`, `c1`, `c2`, `c3` (lower case)."
   }
+  default = null
 }
 
 ##############################################################################
