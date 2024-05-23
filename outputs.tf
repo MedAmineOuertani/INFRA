@@ -1,4 +1,9 @@
-output "cloudfront_distribution_id" {
+output "cloudfront_distribution_domain_name" {
+  description = "The domain name corresponding to the distribution."
+  value       = try(aws_cloudfront_distribution.this[0].domain_name, "")
+}
+
+/*output "cloudfront_distribution_id" {
   description = "The identifier for the distribution."
   value       = try(aws_cloudfront_distribution.this[0].id, "")
 }
@@ -23,10 +28,7 @@ output "cloudfront_distribution_trusted_signers" {
   value       = try(aws_cloudfront_distribution.this[0].trusted_signers, "")
 }
 
-output "cloudfront_distribution_domain_name" {
-  description = "The domain name corresponding to the distribution."
-  value       = try(aws_cloudfront_distribution.this[0].domain_name, "")
-}
+
 
 output "cloudfront_distribution_last_modified_time" {
   description = "The date and time the distribution was last modified."
@@ -81,4 +83,4 @@ output "cloudfront_origin_access_controls" {
 output "cloudfront_origin_access_controls_ids" {
   description = "The IDS of the origin access identities created"
   value       = local.create_origin_access_control ? [for v in aws_cloudfront_origin_access_control.this : v.id] : []
-}
+}*/
