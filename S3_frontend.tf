@@ -263,26 +263,27 @@ data "aws_iam_policy_document" "bucket_policy" {
   # --------------------------------------------------------------------------
 
   statement {
-    sid     = "ForceSSLOnlyAccess"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.default.arn,
-      "${aws_s3_bucket.default.arn}/*",
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.my_oai.iam_arn]
+    }
 
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
     ]
 
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-
-    condition {
-      test     = "NumericLessThan"
-      values   = [1.2]
-      variable = "s3:TLSVersion"
-    }
+    resources = [
+      aws_s3_bucket.example.arn,
+      "${aws_s3_bucket.example.arn}/*",
+    ]
   }
+  }
+
+resource "aws_s3_bucket_policy" "default" {
+  bucket = aws_s3_bucket.default.id
+  policy = data.aws_iam_policy_document.bucket_policy.json
+}
 
 
   # --------------------------------------------------------------------------
@@ -364,10 +365,7 @@ data "aws_iam_policy_document" "merged_policy" {
 }
 
 ## Set policy on bucket if needed (policy given by user or by choosed options)
-resource "aws_s3_bucket_policy" "default" {
-  bucket = aws_s3_bucket.default.id
-  policy = data.aws_iam_policy_document.merged_policy.json
-}
+
 
 # Refer to the terraform documentation on s3_bucket_public_access_block at
 # https://www.terraform.io/docs/providers/aws/r/s3_bucket_public_access_block.html

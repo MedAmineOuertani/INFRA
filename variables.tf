@@ -82,7 +82,7 @@ variable "wait_for_deployment" {
   default     = true
 }
 
-variable "web_acl_id" {
+variable "web_acl_id" {############## Must be updated when adding the WAF ###########################################
   description = "If you're using AWS WAF to filter CloudFront requests, the Id of the AWS WAF web ACL that is associated with the distribution. The WAF Web ACL must exist in the WAF Global (CloudFront) region and the credentials configuring this argument must have waf:GetWebACL permissions assigned. If using WAFv2, provide the ARN of the web ACL."
   type        = string
   default     = null
@@ -405,6 +405,25 @@ variable "name" {
   description = "Name for the bucket. If omitted, Terraform will assign a random, unique name."
 }
 
+# Create an IAM policy document allowing the OAI to access the S3 bucket
+data "aws_iam_policy_document" "my_oai" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.example.iam_arn]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      aws_s3_bucket.example.arn,
+      "${aws_s3_bucket.example.arn}/*",
+    ]
+  }
+}
 
 variable "policy" {
   type        = string
