@@ -172,7 +172,21 @@ variable "origin_group" {
       origin_id = string
     })
   }))
-  default = []
+  default = [{
+    origin_id = "groupS3"
+
+    failover_criteria = {
+      status_codes = [403, 404, 500, 502]
+    }
+
+    primary_member = {
+      origin_id = aws_s3_bucket.default.id
+    }
+    secondary_member = {
+      origin_id = aws_s3_bucket.default.id
+    }
+
+  }]
 }
 
 
@@ -185,6 +199,9 @@ variable "viewer_certificate" {
     minimum_protocol_version       = optional(string)
     ssl_support_method             = optional(string)
   })
+  default = {
+    cloudfront_default_certificate = true
+  }
 }
 
 variable "geo_restriction" {
@@ -193,6 +210,10 @@ variable "geo_restriction" {
     restriction_type = string
     locations        = list(string)
   })
+  default = {
+    restriction_type = "blacklist"
+    locations        = ["RU"]
+  }
 }
 
 variable "logging_config" {
@@ -202,6 +223,7 @@ variable "logging_config" {
     prefix          = string
     include_cookies = optional(bool)
   })
+  default = null
 }
 
 variable "custom_error_response" {
@@ -264,6 +286,18 @@ a description in var.lambda_function_association variable earlier in this file. 
 of the vars in this file apply only to the default cache. Put value `""` on field `target_origin_id` to specify default s3 bucket origin.
 See : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution#default-cache-behavior-arguments
 DESCRIPTION
+
+  default = {
+    allowed_methods  = ["GET", "HEAD", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = aws_s3_bucket.default.id
+
+    viewer_protocol_policy     = "redirect-to-https"
+    min_ttl                    = 0
+    default_ttl                = 3600
+    max_ttl                    = 86400
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.this.id
+  }
 }
 
 variable "ordered_cache_behavior" {
